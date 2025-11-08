@@ -1,0 +1,6238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisation des Équipes EHCVM3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #444444;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #cccccc;
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            border: 1px solid #444444;
+        }
+
+        .search-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .search-group input,
+        .search-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #555555;
+            border-radius: 5px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .search-group input:focus,
+        .search-group select:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+        }
+
+        .clear-btn {
+            padding: 12px 20px;
+            background-color: #666666;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 25px;
+            height: fit-content;
+        }
+
+        .clear-btn:hover {
+            background-color: #777777;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .section {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            border: 1px solid #444444;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: #333333;
+            padding: 15px 20px;
+            border-bottom: 1px solid #444444;
+        }
+
+        .section-header h2 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .section-content {
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .team-card {
+            margin-bottom: 20px;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .team-header {
+            background-color: #0078d4;
+            padding: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .team-members {
+            background-color: #1a1a1a;
+        }
+
+        .member {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member:last-child {
+            border-bottom: none;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .member-tel {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        .member-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-chef {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-agent {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .commune-card {
+            margin-bottom: 15px;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .commune-header {
+            background-color: #dc3545;
+            padding: 12px 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .commune-info {
+            background-color: #1a1a1a;
+            padding: 15px;
+        }
+
+        .commune-detail {
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
+
+        .commune-detail strong {
+            color: #ffffff;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #888888;
+            font-style: italic;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #333333;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #444444;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0078d4;
+        }
+
+        .stat-label {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .results-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .member {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-content {
+                padding: 10px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .section-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .section-content::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .section-content::-webkit-scrollbar-thumb {
+            background: #555555;
+            border-radius: 4px;
+        }
+
+        .section-content::-webkit-scrollbar-thumb:hover {
+            background: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Visualisation des Équipes EHCVM3</h1>
+            <p>Composition des équipes et répartition des communes - ANSD Sénégal</p>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTeams">0</div>
+                <div class="stat-label">Équipes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalMembers">0</div>
+                <div class="stat-label">Membres</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCommunes">0</div>
+                <div class="stat-label">Communes</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <div class="search-group">
+                <label for="teamSelect">Rechercher par équipe :</label>
+                <select id="teamSelect">
+                    <option value="">Toutes les équipes</option>
+                </select>
+            </div>
+            <div class="search-group">
+                <label for="nameSearch">Rechercher par nom :</label>
+                <input type="text" id="nameSearch" placeholder="Entrez un nom...">
+            </div>
+            <button class="clear-btn" onclick="clearFilters()">Effacer</button>
+        </div>
+
+        <div class="results-container">
+            <div class="section">
+                <div class="section-header">
+                    <h2>Composition des Équipes</h2>
+                </div>
+                <div class="section-content" id="teamsContent">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Communes par Équipe</h2>
+                </div>
+                <div class="section-content" id="communesContent">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données des équipes
+        const equipesData = [
+  {
+    "p_n": "Soda DIAKHATE",
+    "Tel": 775592823,
+    "Equipe": "EQ1",
+    "Région d'affection": "Dakar 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Betty  DIEDHIOU",
+    "Tel": 776360312,
+    "Equipe": "EQ1",
+    "Région d'affection": "Dakar 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Mariame LAM",
+    "Tel": 786068312,
+    "Equipe": "EQ1",
+    "Région d'affection": "Dakar 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Dior NDIAYE",
+    "Tel": 775408331,
+    "Equipe": "EQ1",
+    "Région d'affection": "Dakar 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "El Hadj Fallou DIALLO",
+    "Tel": 771547394,
+    "Equipe": "EQ10",
+    "Région d'affection": "Diourbel 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Papa Alla NDIAYE",
+    "Tel": 775647161,
+    "Equipe": "EQ10",
+    "Région d'affection": "Diourbel 3",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Issa NGOM",
+    "Tel": 774374084,
+    "Equipe": "EQ10",
+    "Région d'affection": "Diourbel 3",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Serigne MB. NIANE",
+    "Tel": 774144287,
+    "Equipe": "EQ10",
+    "Région d'affection": "Diourbel 3",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou Gnongue FAYE",
+    "Tel": 776517373,
+    "Equipe": "EQ11",
+    "Région d'affection": "Diourbel 2 - Thies 4",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Mouhamadou Bassirou MANGANE",
+    "Tel": 775213245,
+    "Equipe": "EQ11",
+    "Région d'affection": "Diourbel 2 - Thies 4",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Moumy NDIAYE",
+    "Tel": 773449765,
+    "Equipe": "EQ11",
+    "Région d'affection": "Diourbel 2 - Thies 4",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Yaba WADE",
+    "Tel": 786301295,
+    "Equipe": "EQ11",
+    "Région d'affection": "Diourbel 2 - Thies 4",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Alouise DIENG",
+    "Tel": 782105630,
+    "Equipe": "EQ12",
+    "Région d'affection": "Diourbel 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ndoumbe DIOME",
+    "Tel": 778692000,
+    "Equipe": "EQ12",
+    "Région d'affection": "Diourbel 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Astou Gawane FAYE",
+    "Tel": 774903367,
+    "Equipe": "EQ12",
+    "Région d'affection": "Diourbel 1",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Talla NGOM",
+    "Tel": 772830171,
+    "Equipe": "EQ12",
+    "Région d'affection": "Diourbel 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Seynabou DIEDHIOU",
+    "Tel": 782438688,
+    "Equipe": "EQ13",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Modou DIEYE",
+    "Tel": 785344946,
+    "Equipe": "EQ13",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Seyni FALL",
+    "Tel": 776759870,
+    "Equipe": "EQ13",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Bineta LO",
+    "Tel": 774584522,
+    "Equipe": "EQ13",
+    "Région d'affection": "Louga 1 - Thies 5",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Aissatou CISSE",
+    "Tel": 783301491,
+    "Equipe": "EQ14",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou Ndiaye GAYE",
+    "Tel": 781493820,
+    "Equipe": "EQ14",
+    "Région d'affection": "Louga 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Diobe GUEYE",
+    "Tel": 784354149,
+    "Equipe": "EQ14",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Marieme NGOM",
+    "Tel": 706458517,
+    "Equipe": "EQ14",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Boubacar DIOP",
+    "Tel": 774810645,
+    "Equipe": "EQ15",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Aminata Djiby NDIAYE",
+    "Tel": 771128657,
+    "Equipe": "EQ15",
+    "Région d'affection": "Louga 3 - Matam 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fatoumata SECK",
+    "Tel": 772388568,
+    "Equipe": "EQ15",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Bamby SOW",
+    "Tel": 785374486,
+    "Equipe": "EQ15",
+    "Région d'affection": "LOUGA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ousseynou BOYE",
+    "Tel": 774005807,
+    "Equipe": "EQ16",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Maimouna Kourmang",
+    "Tel": 772885525,
+    "Equipe": "EQ16",
+    "Région d'affection": "Saint-Louis 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Ndeye Yacine SAMBE",
+    "Tel": 777955508,
+    "Equipe": "EQ16",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mame Diarra SARR",
+    "Tel": 781537091,
+    "Equipe": "EQ16",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mamadou Gazali DEME",
+    "Tel": 775873565,
+    "Equipe": "EQ17",
+    "Région d'affection": "Saint-Louis 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fatimata DIA",
+    "Tel": 776873004,
+    "Equipe": "EQ17",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Yacine  SALL",
+    "Tel": 771877638,
+    "Equipe": "EQ17",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Haby SALL",
+    "Tel": 770931036,
+    "Equipe": "EQ17",
+    "Région d'affection": "SAINT-LOUIS",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Boudel BA",
+    "Tel": 770318425,
+    "Equipe": "EQ18",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mouhamed DEME",
+    "Tel": 771614134,
+    "Equipe": "EQ18",
+    "Région d'affection": "Matam 2 Saint-Louis 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Mame Mbaye SENE",
+    "Tel": 772206521,
+    "Equipe": "EQ18",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Oumar Ibrahima SY",
+    "Tel": 771819658,
+    "Equipe": "EQ18",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Aissatou BA",
+    "Tel": 785560818,
+    "Equipe": "EQ19",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ismaila DIAKO",
+    "Tel": 778943539,
+    "Equipe": "EQ19",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Aissata DIANKA",
+    "Tel": 782156760,
+    "Equipe": "EQ19",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Oumar WELE",
+    "Tel": 777650205,
+    "Equipe": "EQ19",
+    "Région d'affection": "Matam 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Hawel BA",
+    "Tel": 773510028,
+    "Equipe": "EQ2",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou Marie MBODJI",
+    "Tel": 775392003,
+    "Equipe": "EQ2",
+    "Région d'affection": "Dakar 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Dibor NGOM",
+    "Tel": 773844781,
+    "Equipe": "EQ2",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Amine SEGNONE",
+    "Tel": 776366923,
+    "Equipe": "EQ2",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Seydina oumar BA",
+    "Tel": 772703778,
+    "Equipe": "EQ20",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Dieynaba DEME",
+    "Tel": 778071174,
+    "Equipe": "EQ20",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Aboubakrine Sadikh DICKO",
+    "Tel": 778549347,
+    "Equipe": "EQ20",
+    "Région d'affection": "Matam 4 - Tambacounda 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Salif TECKAGNE",
+    "Tel": 770820225,
+    "Equipe": "EQ20",
+    "Région d'affection": "MATAM",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Amadou GUEYE",
+    "Tel": 777287466,
+    "Equipe": "EQ21",
+    "Région d'affection": "Fatick 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fallou GUEYE",
+    "Tel": 781511351,
+    "Equipe": "EQ21",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Alfred KEITA",
+    "Tel": 775522350,
+    "Equipe": "EQ21",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ramatoulaye SARR",
+    "Tel": 772010628,
+    "Equipe": "EQ21",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Abibatou BIAGUI",
+    "Tel": 776748112,
+    "Equipe": "EQ22",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Awa DIALLO",
+    "Tel": 778778797,
+    "Equipe": "EQ22",
+    "Région d'affection": "Fatick 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fatou DIOP",
+    "Tel": 779449126,
+    "Equipe": "EQ22",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Henry Ngor  DIOUF",
+    "Tel": 784939713,
+    "Equipe": "EQ22",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Serigne Modou DIOUF",
+    "Tel": 777052580,
+    "Equipe": "EQ23",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "El Hadji Djibril DIOUF",
+    "Tel": 776417228,
+    "Equipe": "EQ23",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Serigne Fallou DIOUF",
+    "Tel": 782863658,
+    "Equipe": "EQ23",
+    "Région d'affection": "FATICK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ndeye Marie TENDENG",
+    "Tel": 782577690,
+    "Equipe": "EQ23",
+    "Région d'affection": "Fatick 3 - Kaolack 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Serigne Modou Bousso GUEYE",
+    "Tel": 774581785,
+    "Equipe": "EQ24",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ousmane MBENGUE",
+    "Tel": 776505029,
+    "Equipe": "EQ24",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Bintou SAGNA",
+    "Tel": 774268935,
+    "Equipe": "EQ24",
+    "Région d'affection": "Kaolack 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Aida THIAM",
+    "Tel": 776398064,
+    "Equipe": "EQ24",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Khadyja BA",
+    "Tel": 771187149,
+    "Equipe": "EQ25",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Modou DIONE",
+    "Tel": 771349227,
+    "Equipe": "EQ25",
+    "Région d'affection": "Kaolack 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Oumou DIOP",
+    "Tel": 777112707,
+    "Equipe": "EQ25",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Yaye Fatou FALL",
+    "Tel": 784643390,
+    "Equipe": "EQ25",
+    "Région d'affection": "KAOLACK",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ousmane DIOUF",
+    "Tel": 770699282,
+    "Equipe": "EQ26",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ndeye Seynabou FALL",
+    "Tel": 784538816,
+    "Equipe": "EQ26",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fallou FAYE",
+    "Tel": 778757012,
+    "Equipe": "EQ26",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Coura GAYE",
+    "Tel": 771069382,
+    "Equipe": "EQ26",
+    "Région d'affection": "Kaffrine 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Soudou FAYE",
+    "Tel": 775679585,
+    "Equipe": "EQ27",
+    "Région d'affection": "Kaffrine 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Aissatou SENE",
+    "Tel": 774328160,
+    "Equipe": "EQ27",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Bidji SENGHOR",
+    "Tel": 783943956,
+    "Equipe": "EQ27",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "El Hadji Alioune THIAM",
+    "Tel": 777793466,
+    "Equipe": "EQ27",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Abdou Khadre DIOUF",
+    "Tel": 777346958,
+    "Equipe": "EQ28",
+    "Région d'affection": "Kaffrine 3 - Tambacounda 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fatou DIOUF",
+    "Tel": 773441270,
+    "Equipe": "EQ28",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Khadidiatou GUEYE",
+    "Tel": 775495636,
+    "Equipe": "EQ28",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Moussa NDIAYE",
+    "Tel": 776251414,
+    "Equipe": "EQ28",
+    "Région d'affection": "KAFFRINE",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Baye Cheikh NIANG",
+    "Tel": 775933361,
+    "Equipe": "EQ29",
+    "Région d'affection": "Tambacounda 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Moussoumakha SANKHANOU",
+    "Tel": 777749740,
+    "Equipe": "EQ29",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Alassane TOURE",
+    "Tel": 778504749,
+    "Equipe": "EQ29",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Hamet YATERA",
+    "Tel": 785318117,
+    "Equipe": "EQ29",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mame Rama DIEME",
+    "Tel": 778085172,
+    "Equipe": "EQ3",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Seynabou DIOUF",
+    "Tel": 773992570,
+    "Equipe": "EQ3",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mbathio FALL",
+    "Tel": 774612132,
+    "Equipe": "EQ3",
+    "Région d'affection": "Dakar 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Khadidiatou FALL",
+    "Tel": 771033840,
+    "Equipe": "EQ3",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Assane COULIBALY",
+    "Tel": 775552708,
+    "Equipe": "EQ30",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Papa Sadio COULIBALY",
+    "Tel": 772434147,
+    "Equipe": "EQ30",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Baye Asse DIOP",
+    "Tel": 778380091,
+    "Equipe": "EQ30",
+    "Région d'affection": "Tambacounda 4 - Kedougou 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Djibril SADIO",
+    "Tel": 774448946,
+    "Equipe": "EQ30",
+    "Région d'affection": "Tambacounda",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Alassane Ndoye DIALLO",
+    "Tel": 772078458,
+    "Equipe": "EQ31",
+    "Région d'affection": "Kedougou 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Doudou FALL",
+    "Tel": 772099317,
+    "Equipe": "EQ31",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Souaibou KANTE",
+    "Tel": 778714677,
+    "Equipe": "EQ31",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Armel SAGNA",
+    "Tel": 787371166,
+    "Equipe": "EQ31",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ibrahima DIALLO",
+    "Tel": 775868496,
+    "Equipe": "EQ32",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mamadou Mourtalla  DIENG",
+    "Tel": 784963254,
+    "Equipe": "EQ32",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Almemy SAGNA",
+    "Tel": 781512689,
+    "Equipe": "EQ32",
+    "Région d'affection": "KEDOUGOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Doudou SANE",
+    "Tel": 770368579,
+    "Equipe": "EQ32",
+    "Région d'affection": "Kedougou 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Abdourahmane BA",
+    "Tel": 777391577,
+    "Equipe": "EQ33",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Amadou BALDE",
+    "Tel": 776882164,
+    "Equipe": "EQ33",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Salimatou DIALLO",
+    "Tel": 775142371,
+    "Equipe": "EQ33",
+    "Région d'affection": "Kolda 1 - Tambacounda 5",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Abdou Gadiry DIALLO",
+    "Tel": 773138286,
+    "Equipe": "EQ33",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Lamine CISSE",
+    "Tel": 772440099,
+    "Equipe": "EQ34",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Saliou NDIAYE",
+    "Tel": 776674320,
+    "Equipe": "EQ34",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Rokhaya NGOM",
+    "Tel": 777352509,
+    "Equipe": "EQ34",
+    "Région d'affection": "Kolda 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Awa NGOM",
+    "Tel": 774286403,
+    "Equipe": "EQ34",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Batchi Abdoulaye CORREA",
+    "Tel": 772288999,
+    "Equipe": "EQ35",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Moctar Fama DIOP",
+    "Tel": 771056652,
+    "Equipe": "EQ35",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Matar GUEYE",
+    "Tel": 774228350,
+    "Equipe": "EQ35",
+    "Région d'affection": "Kolda 3 - Sedhiou 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Mareme NIANG",
+    "Tel": 777978376,
+    "Equipe": "EQ35",
+    "Région d'affection": "KOLDA",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fode BAYO",
+    "Tel": 772007494,
+    "Equipe": "EQ36",
+    "Région d'affection": "Sedhiou 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Abouna Jean-Pierre MANGA",
+    "Tel": 752099975,
+    "Equipe": "EQ36",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Hawa SAMBOU",
+    "Tel": 772933974,
+    "Equipe": "EQ36",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Victor SAMBOU",
+    "Tel": 777957782,
+    "Equipe": "EQ36",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Seynabou BADJI",
+    "Tel": 771565780,
+    "Equipe": "EQ37",
+    "Région d'affection": "Sedhiou 3 - Ziguinchor 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Sega CAMARA",
+    "Tel": 782676704,
+    "Equipe": "EQ37",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Alassane Henry DIEDHIOU",
+    "Tel": 774190765,
+    "Equipe": "EQ37",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Cherif Sidou DIEDHIOU",
+    "Tel": 776294699,
+    "Equipe": "EQ37",
+    "Région d'affection": "SEDHIOU",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Abibou NDIAYE",
+    "Tel": 771723360,
+    "Equipe": "EQ38",
+    "Région d'affection": "Ziguinchor 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Abdou NDIAYE",
+    "Tel": 775284288,
+    "Equipe": "EQ38",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Sophie NIANG",
+    "Tel": 781257173,
+    "Equipe": "EQ38",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Michel SECK",
+    "Tel": 775949810,
+    "Equipe": "EQ38",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Altenin BA",
+    "Tel": 783768300,
+    "Equipe": "EQ39",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mame Diarra COLY",
+    "Tel": 777428103,
+    "Equipe": "EQ39",
+    "Région d'affection": "Sedhiou 4 - Ziguinchor 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Al Hassane DIOUF",
+    "Tel": 776949858,
+    "Equipe": "EQ39",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou Thioune SECK",
+    "Tel": 772298709,
+    "Equipe": "EQ39",
+    "Région d'affection": "ZIGUINCHOR",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Oulimata DIENE",
+    "Tel": 775500116,
+    "Equipe": "EQ4",
+    "Région d'affection": "Dakar 4",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Fatou FAYE",
+    "Tel": 770360221,
+    "Equipe": "EQ4",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Germaine Kine MANGA",
+    "Tel": 777111074,
+    "Equipe": "EQ4",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou SENE",
+    "Tel": 774217549,
+    "Equipe": "EQ4",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Sokhna  FALL",
+    "Tel": 777503024,
+    "Equipe": "EQ5",
+    "Région d'affection": "Dakar 5",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Adama FALL",
+    "Tel": 770671417,
+    "Equipe": "EQ5",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ramatoulaye SANE",
+    "Tel": 771603815,
+    "Equipe": "EQ5",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Babacar SENE",
+    "Tel": 771095843,
+    "Equipe": "EQ5",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Djibril BA",
+    "Tel": 777874407,
+    "Equipe": "EQ6",
+    "Région d'affection": "Dakar 6",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Oumy BADJI",
+    "Tel": 772153250,
+    "Equipe": "EQ6",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Sira Idrissa DOUMBOUYA",
+    "Tel": 779787678,
+    "Equipe": "EQ6",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Binetou MBAYE",
+    "Tel": 782231247,
+    "Equipe": "EQ6",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Diarietou DJIBA",
+    "Tel": 774314520,
+    "Equipe": "EQ7",
+    "Région d'affection": "Dakar 7 - Thies 3",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Marieme FALL",
+    "Tel": 772211465,
+    "Equipe": "EQ7",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Fatou KOR",
+    "Tel": 773715128,
+    "Equipe": "EQ7",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Helene Sow NDIAYE",
+    "Tel": 771938863,
+    "Equipe": "EQ7",
+    "Région d'affection": "Dakar",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Abdou Khadre FALL",
+    "Tel": 777887155,
+    "Equipe": "EQ8",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mamadou FALL",
+    "Tel": 776734559,
+    "Equipe": "EQ8",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Ibrahima Abo NDIAYE",
+    "Tel": 776183093,
+    "Equipe": "EQ8",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Mame Fatou SOW",
+    "Tel": 775980421,
+    "Equipe": "EQ8",
+    "Région d'affection": "Thies 2",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Mbougane DIOUF",
+    "Tel": 773226432,
+    "Equipe": "EQ9",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Papa Mamadou NDIAYE",
+    "Tel": 777841170,
+    "Equipe": "EQ9",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  },
+  {
+    "p_n": "Sara NIANG",
+    "Tel": 763978052,
+    "Equipe": "EQ9",
+    "Région d'affection": "Thies 1",
+    "Statut": "Chef d'équipe"
+  },
+  {
+    "p_n": "Astou SAGNA",
+    "Tel": 782375426,
+    "Equipe": "EQ9",
+    "Région d'affection": "THIES",
+    "Statut": "Agent"
+  }
+];
+
+        // Données des communes
+        const communesData = [
+  {
+    "Identifiant_du_DR": 11301130074,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "MEDINA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 149.3807214,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOUYE SALANE III",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301260004,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "DIEUPPEUL DERKLE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 190.431912,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SICAP DIEUPEUL IV",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301140022,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "GUEULE TAPEE FASS COLOBANE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 337.5320116,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "FASS DELORME",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301230046,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "HLM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 237.1846568,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HLM MONTAGNE",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301220028,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "BISCUITERIE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 395.6878649,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BISCUITERIE III",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301210023,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "GRAND DAKAR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 240.1556062,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GRAND DAKAR III A",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301240055,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "HANN BEL AIR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 158.5032082,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HANN PARC I",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301410053,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "GRAND YOFF",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 244.8232749,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GRAND YOFF LEONA",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 11301250026,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "SICAP LIBERTE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 167.625695,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LIBERTE VI",
+    "Equipe_39_equipes": "EQ1"
+  },
+  {
+    "Identifiant_du_DR": 33202050251,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 107.5898765,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU KHOUDOSS",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050410,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 95.29389057,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUEDE BOUSSO",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050134,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 71.7265843,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA MOSQUEE",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050763,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 84.02257018,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAHNATOUL MAHWA",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050523,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 118.8611968,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU KHADIM",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050913,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 81.9732392,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KHAIRA",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202050628,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 105.5405455,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOUKHATOUL MOUBARACK",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202051062,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 90.17056312,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA AL AZAR",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 33202051167,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TOUBA MOSQUEE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 87.09656665,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU RAHMANE",
+    "Equipe_39_equipes": "EQ10"
+  },
+  {
+    "Identifiant_du_DR": 31202010011,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "GAWANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 68.65828488,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LANGAR DEUNE - NDIONE - H1 WAKHALDIAM",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 31101000037,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "BAMBEY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 144.5317745,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESCALE",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 31203020017,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "NDONDOL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 62.60020092,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H5 NGOKOLY-H6 GARE DIAM NDIEMANE",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 31202040019,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "REFANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIOLLA",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 31202020034,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "LAMBAYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 73.70668818,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBOUSSO",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 31203030013,
+    "REGION": "DIOURBEL",
+    "code_departement": 31,
+    "DEPARTEMENT": "BAMBEY",
+    "communes": "NGOYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 BOKO-PAGUI LAGNAR-SONE KADE I - MAKA TOULANE",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 72202040013,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "TOUBA TOUL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 84.81317544,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 DAROU SOUGUERE - H1 THIENENE  - H2 KEUR GOUMACK - NAKH NEKH - NGAKHERE",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 72202010002,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "NDIEYENE SIRAKH",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 75.7260495,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR MANDIAYE MBAR-KEUR FARANG FALL",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 73102000015,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "TIVAOUANE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 129.1078517,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDIANDAKHOUM",
+    "Equipe_39_equipes": "EQ11"
+  },
+  {
+    "Identifiant_du_DR": 32201040005,
+    "REGION": "DIOURBEL",
+    "code_departement": 32,
+    "DEPARTEMENT": "DIOURBEL",
+    "communes": "KEUR NGALGOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 62.60020092,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR NDIOUGA MBAYE, H2KEUR ABDOULAYE KA, H2 NDIANOU KEUR ALY BA DE NGAWAW, H1 THIOMBOLY DE NGAWAO, H2 KEUR MODOU BADIANE DE MBOBENE NGANAW, H1 KEUR DAOUDA GUEYE DE KEUR NGALGOU",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 32202020023,
+    "REGION": "DIOURBEL",
+    "code_departement": 32,
+    "DEPARTEMENT": "DIOURBEL",
+    "communes": "NGOHE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 89.86157874,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOMKHEL(BACK)-THIOUTHIOUNE",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 32101000011,
+    "REGION": "DIOURBEL",
+    "code_departement": 32,
+    "DEPARTEMENT": "DIOURBEL",
+    "communes": "DIOURBEL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 184.4397882,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIERNO KANDJI",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 32101000112,
+    "REGION": "DIOURBEL",
+    "code_departement": 32,
+    "DEPARTEMENT": "DIOURBEL",
+    "communes": "DIOURBEL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 122.9598588,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR CHEIKH IBRA FALL",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 33101000083,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "MBACKE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 135.2558447,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBACKE NDIMBE(MBACKE)",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 33201080001,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "TAIBA TIECKENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 72.69700752,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TAIBA THIEKENE-H1 TAIBA GOUYE-TAIBA THIAREME-TAINABE-H2 KEUR IDY DIAKOU KA-H3 KEUR MBEGANE NDOUR-H4 NGUETTE-H1 DJIGOBE-H6 MOURE",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 33202030006,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "NGAYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GANDIOLE-H1 NIANKHENE",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 33202010010,
+    "REGION": "DIOURBEL",
+    "code_departement": 33,
+    "DEPARTEMENT": "MBACKE",
+    "communes": "DALLA NGABOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 58.56147828,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOUYE NGUENE OUOLOF-H1 DARAAY GOUYE NGUENE-GOUYE NGUENE PEULH",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 32202040006,
+    "REGION": "DIOURBEL",
+    "code_departement": 32,
+    "DEPARTEMENT": "DIOURBEL",
+    "communes": "TOCKY GARE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 58.56147828,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "WANGA-POBE-LORFY-LOUMBEL THIAW-H1 KEUR AMATH NGOM-H2 NGOYE LORFY",
+    "Equipe_39_equipes": "EQ12"
+  },
+  {
+    "Identifiant_du_DR": 81101000028,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "KEBEMER",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 77.82480167,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GALLA DAROU SALAM",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 81202060010,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "GUEOUL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 69.73910799,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESCALE",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 81201040007,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "NDOYENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GADE NIASSENE-NGOUYE SIDIOR-NIANGUENE-KOULY-H1 NGOL KHOYOYE DE TOUBA MERINA-NIASSENE-GATTY1-H1 GOUYE NIASSENE-GATTY2",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 81201060001,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "TOUBA MERINA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 139.3359311,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBAYENE NDIOUNDANE (DIAMAGUENE OUOLOF)-KHOYOYE-DIAMAGUENE PEULH-DIAMAGUENE WODABE-NDIMB DIOR-H1 BELLA-H1 KEUR BIRAME COUMBA-H1 MAGAMOU-H1 DABEL-H2 NDIOURKY OUOLOF-H3 NDIOURKY PEULH-H4 KOYEL-H5 BARA",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 81201020011,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "DAROU MOUSTY",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 81.78413346,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 KHOUDIOUL-SEBERE FACK- YEREW-H1 NDINGOLOGNE-NDINGOLOGNE",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 81201020032,
+    "REGION": "LOUGA",
+    "code_departement": 81,
+    "DEPARTEMENT": "KEBEMER",
+    "communes": "DAROU MOUSTY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 95.9196627,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 73201010049,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "MEOUANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 95.9196627,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGUEYE  NGUEYE-KEUR MALICK DIARRA-DAROU MINANE(DAROU DIOUF)-THIAKHREW-KEUR NDIAGA MBAYE",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 73204040043,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "PIRE GOUREYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 49.47435234,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 73203020028,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "NGANDIOUF",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 72.69700752,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ13"
+  },
+  {
+    "Identifiant_du_DR": 83204030017,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "SAKAL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 50.484033,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAKHA LOUM-THIAMBENE SAMB",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83101000103,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "LOUGA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 149.6011615,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MONTAGNE NORD",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83101000018,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "LOUGA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 109.6392074,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR SERIGNE LOUGA NORD",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83101000047,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "LOUGA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 97.34322155,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIABA SUD",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83101000075,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "LOUGA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 151.6504925,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIABA NORD",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83204010011,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "LEONA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 88.85189808,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83201030008,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "THIAMENE CAYOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 87.84221742,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIAMENE-H1 FINIYONGO",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83202010018,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "GANDE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 302.904198,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GANDE I - GORBEL OUOLOF - MBENGUENE",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 83202030040,
+    "REGION": "LOUGA",
+    "code_departement": 83,
+    "DEPARTEMENT": "LOUGA",
+    "communes": "NGUER MALAL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 107.02615,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DEPAL GUEYE-H1 KORLEL-H1 NDIAYENE-H2 KEUR NIANGANE-LOUGUERE WANDE-LOUGUI TALLY",
+    "Equipe_39_equipes": "EQ14"
+  },
+  {
+    "Identifiant_du_DR": 113101000001,
+    "REGION": "MATAM",
+    "code_departement": 113,
+    "DEPARTEMENT": "RANEROU",
+    "communes": "RANEROU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 110.1675764,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "RANEROU",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 113201030038,
+    "REGION": "MATAM",
+    "code_departement": 113,
+    "DEPARTEMENT": "RANEROU",
+    "communes": "OUDALAYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 92.89062072,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 113201020019,
+    "REGION": "MATAM",
+    "code_departement": 113,
+    "DEPARTEMENT": "RANEROU",
+    "communes": "VELINGARA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 LAM-KHOL KHOL 2-BELEL TOUFLE-H2 WENDOU DOKY",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 82101000014,
+    "REGION": "LOUGA",
+    "code_departement": 82,
+    "DEPARTEMENT": "LINGUERE",
+    "communes": "LINGUERE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 114.2104232,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LINGUERE NDIAMBOUR",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 82204020015,
+    "REGION": "LOUGA",
+    "code_departement": 82,
+    "DEPARTEMENT": "LINGUERE",
+    "communes": "DEALI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGUILO PEULH",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 82102000027,
+    "REGION": "LOUGA",
+    "code_departement": 82,
+    "DEPARTEMENT": "LINGUERE",
+    "communes": "DAHRA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 121.2854052,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAHRA  MBAYENE",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 82204040003,
+    "REGION": "LOUGA",
+    "code_departement": 82,
+    "DEPARTEMENT": "LINGUERE",
+    "communes": "THIAMENE PASSE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 73.70668818,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DECK WOTE LEWONABE-DECK WOTE SOUGOUNAB-NDIPANE-H2 BOGOGNE-H3 BELEL KOLY",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 82202020006,
+    "REGION": "LOUGA",
+    "code_departement": 82,
+    "DEPARTEMENT": "LINGUERE",
+    "communes": "LABGAR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LABGAR OUOLOF I",
+    "Equipe_39_equipes": "EQ15"
+  },
+  {
+    "Identifiant_du_DR": 43101000039,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "SAINT LOUIS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 101.4418835,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUET NDAR (LODO)",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43101000091,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "SAINT LOUIS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 121.9351933,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SOR NORD (TENDJIGUENE)",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43101000204,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "SAINT LOUIS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 87.09656665,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PIKINE SOR DAGA",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43101000146,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "SAINT LOUIS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 73.77591528,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PIKINE TABLEAU WALO",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43101000256,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "SAINT LOUIS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 123.9845243,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KHOR USINE",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43201010082,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "GANDON",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 126.2100825,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOUGOB PEULH(SANAR PEULH)",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43201020012,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "FASS NGOM",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBOOY-KEUR AMADOU NDIAYE 2",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 43201030039,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 43,
+    "DEPARTEMENT": "SAINT LOUIS",
+    "communes": "NDIEBENE GANDIOLE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 69.66796554,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUEUMBEUL- NGAINA",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 41202010050,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "DIAMA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 114.0939146,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "RONE MARAYE",
+    "Equipe_39_equipes": "EQ16"
+  },
+  {
+    "Identifiant_du_DR": 42102000023,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "NDIOUM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 74.79266654,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMEL",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 42203010035,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "FANAYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 91.88094006,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIANGAYE",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 42204030012,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "GUEDE VILLAGE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 65.6292429,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUIA - H1 DAROU WANLANG - H2 GUIA 4 - H1 ANTENNE DABAYE",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 42203020001,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "NDIAYENE PENDAO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 79.76477214,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 NOUWOYDOU-H2 THIAMBALEDJI-H3 LOUMBOUL SOWNABE",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 41101000018,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "DAGANA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 79.84622509,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SECTEUR II",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 41102000084,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "RICHARD TOLL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 99.39255253,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CAMPEMENT",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 41102000030,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "RICHARD TOLL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 112.7132039,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KHOUMA WOLOF",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 41202020005,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "NGNITH",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 140.3456117,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR YORO GUEDAL - H2 BELELE MBAYE - H2 KEUR KALIDOU DIA - H1 NDOURNABE DIAGNE 1  - H3 KADOU NDEFFE",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 41201020003,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 41,
+    "DEPARTEMENT": "DAGANA",
+    "communes": "BOKHOL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 107.02615,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DJIDIERY TOUCOULEUR",
+    "Equipe_39_equipes": "EQ17"
+  },
+  {
+    "Identifiant_du_DR": 111201030016,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "DABIA OBEDJI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOBILO TOROBE",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 111201050015,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "THILOGNE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 157.6710268,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOLLERE",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 111202010059,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "BOKIDIAWE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 78.75509148,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DOUMGA OURO ALPHA",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 111202010003,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "BOKIDIAWE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 56.54211696,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GAOL",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 111201040011,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "NGUIDJILOGNE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 68.72839628,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGUIDJILOGNE LODJOU",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 42201040001,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "AERE LAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 96.01761245,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BAROBE",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 42201020009,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "DOUMGA LAO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 92.89062072,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDIAYNGA SOUBALO",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 42202010041,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "BOKE DIALLOUBE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 185.7812414,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H2 BELEL SENO - H1 TAMPI DARO - H3 GAINTH SENO - BOKE FAFABE FAYEMBE (THIAM THILLE)",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 42202020038,
+    "REGION": "SAINT LOUIS",
+    "code_departement": 42,
+    "DEPARTEMENT": "PODOR",
+    "communes": "MBOLO BIRANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H5 LOUR HARAO - H2 OGUERE II - H1 OGUERE I - H3 LOUR DIALLOUBES - H4 LOUR OUROURBES",
+    "Equipe_39_equipes": "EQ18"
+  },
+  {
+    "Identifiant_du_DR": 111101000012,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "MATAM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 81.86764851,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THAIDE",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 111102000003,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "OUROSSOGUI",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 115.2211349,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "AINOUMADY I",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 111102000020,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "OUROSSOGUI",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 96.01761245,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "WINDE I",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 111202020047,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "NABADJI CIVOL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 67.64860422,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NABADJI CIVOL",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 111202020086,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "NABADJI CIVOL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 68.65828488,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SEDDO SEBBE",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 112202030002,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "HAMADY HOUNARE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 71.76053141,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HAIRE",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 112202040009,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "SINTHIOU BAMAMBE BANADJI",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 38.40704498,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGAPOUGOU I",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 112202010023,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "NDENDORY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 36.34850376,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDENDORY",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 111202030075,
+    "REGION": "MATAM",
+    "code_departement": 111,
+    "DEPARTEMENT": "MATAM",
+    "communes": "OGO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MARSA GALOYABE-FABOLY",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 112202020047,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "WOURO SIDY",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 58.56147828,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MADINA TOROBE",
+    "Equipe_39_equipes": "EQ19"
+  },
+  {
+    "Identifiant_du_DR": 14301110048,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "GOLF SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 118.3411445,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PARCELLES ASSAINIES  UNITE I",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 14301110009,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "GOLF SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 167.3098939,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUENTEBA I",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301330076,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "YOFF",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 147.1000997,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301440027,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "CAMBERENE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 158.5032082,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CAYOR",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301430066,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "PARCELLES ASSAINIES",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 267.9730497,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "UNITE XIII",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301430158,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "PARCELLES ASSAINIES",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 173.3272492,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "UNITE XXVI",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301310003,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "OUAKAM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 155.0822756,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MAMELLES AVIATION",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301310086,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "OUAKAM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 237.1846568,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA OUAKAM II (CITE AVION)",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 11301410136,
+    "REGION": "DAKAR",
+    "code_departement": 11,
+    "DEPARTEMENT": "DAKAR",
+    "communes": "GRAND YOFF",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 163.2155166,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HLM SHELTER II",
+    "Equipe_39_equipes": "EQ2"
+  },
+  {
+    "Identifiant_du_DR": 51203020011,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 51,
+    "DEPARTEMENT": "BAKEL",
+    "communes": "GABOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 64.61956224,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BEMA-FALOBOULA",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 51202030012,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 51,
+    "DEPARTEMENT": "BAKEL",
+    "communes": "KIDIRA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 141.4996394,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ABATTOIRS",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 51101000020,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 51,
+    "DEPARTEMENT": "BAKEL",
+    "communes": "BAKEL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 126.3389638,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DARE SALAM",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 53202040023,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 53,
+    "DEPARTEMENT": "GOUDIRY",
+    "communes": "SINTHIOU MAMADOU BOUBOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 54.52275564,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIOU TAFSIROU-SINTHIOU OMAR HAVOYE-GUINA",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 112201010018,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "BOKILADJI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 52.50339432,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOKILADJI",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 112201030005,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "AOURE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 46.44531036,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "WALEL",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 112201020005,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "ORKADIERE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 33.31946178,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 112201020053,
+    "REGION": "MATAM",
+    "code_departement": 112,
+    "DEPARTEMENT": "KANEL",
+    "communes": "ORKADIERE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 54.52275564,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ20"
+  },
+  {
+    "Identifiant_du_DR": 91202010018,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "FIMELA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 63.60988158,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MAR SOULOU",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92101000004,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "FOUNDIOUGNE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 136.4460809,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE BENOIT",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92203020012,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "KEUR SAMBA GUEYE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 55.5324363,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIE RAME",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92203040036,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "TOUBACOUTA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 66.63892356,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DJINACK BARA - DJINACK DIATAKO",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92203050014,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "KARANG POSTE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 230.4422699,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIE SADY",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92102000019,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "SOKONE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 84.89978364,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92201010009,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "DJILOR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 131.2584858,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GAGUE CHERIF-KEUR NGARY",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92201060011,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "PASSY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 119.2639818,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU SALAM",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 92203030011,
+    "REGION": "FATICK",
+    "code_departement": 92,
+    "DEPARTEMENT": "FOUNDIOUGNE",
+    "communes": "NIORO ALASSANE TALL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 79.76477214,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 KEUR  KIMINTANG - KEUR SAMBARE - KEUR BAKAR DIAITE - H1 KEUR ASSANE",
+    "Equipe_39_equipes": "EQ21"
+  },
+  {
+    "Identifiant_du_DR": 91201050006,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "DIAKHAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 48.51416208,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAKHAO MACK-DINGUILYAME",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91101000018,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "FATICK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 136.4460809,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDOUCK",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91101000002,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "FATICK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 213.2601708,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "POUKHAM",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91202010005,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "FIMELA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 108.0358306,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SIMAL",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91201040010,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "THIARE NDIALGUI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 92.89062072,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOOF POUPOUYE",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91203020008,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "NIAKHAR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 194.8683674,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NIAKHAR",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91203020015,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "NIAKHAR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 88.85189808,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PODOME - H1 MBOULOUP - H2 KEUR AMANDIOGOU - H3 NDIADIARAME - H4 MBINE DIOULY - H1 MBOULOUP - H2 SABANG  -H3 DARA",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91201020022,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "MBELLACADIAO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 62.60020092,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGOULOUL SERERE",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 91204010037,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "DIARRERE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 81.78413346,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIARRERE",
+    "Equipe_39_equipes": "EQ22"
+  },
+  {
+    "Identifiant_du_DR": 93101000006,
+    "REGION": "FATICK",
+    "code_departement": 93,
+    "DEPARTEMENT": "GOSSAS",
+    "communes": "GOSSAS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 92.98547732,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PAKHA",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 91201030007,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "NDIOB",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H2 KEUR SONGO - H3 GOURGOU - H1 PEULGA - MBATAR",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 91203030019,
+    "REGION": "FATICK",
+    "code_departement": 91,
+    "DEPARTEMENT": "FATICK",
+    "communes": "PATAR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 98.94870468,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIANE",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 93202020007,
+    "REGION": "FATICK",
+    "code_departement": 93,
+    "DEPARTEMENT": "GOSSAS",
+    "communes": "OUADIOUR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 110.0551919,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "OUADIOUR-DAROU RAHMANE",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 93201020024,
+    "REGION": "FATICK",
+    "code_departement": 93,
+    "DEPARTEMENT": "GOSSAS",
+    "communes": "MBAR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 91.88094006,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBAME DJIGANE - KHOUROU MBACKE - H1 KEUR DEMBA KA - H2 PEULGA -H1 MBOUL- H3 KEUR MASSEYE DIAGNE - H2 KEUR KHAR et KEUR SAFER ET NGUEYE",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 63201020006,
+    "REGION": "KAOLACK",
+    "code_departement": 63,
+    "DEPARTEMENT": "GUINGUINEO",
+    "communes": "NDIAGO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 93.90030138,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H4 KALASSANE - H3 NDIRENE GOYA - H1 NDIRENE PEULH - MADINA KAWSARA",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 63202050008,
+    "REGION": "KAOLACK",
+    "code_departement": 63,
+    "DEPARTEMENT": "GUINGUINEO",
+    "communes": "PANAL OUOLOF",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 55.5324363,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBOSS BALLO WOLOF- DIAMEGUENE THIALLE - MBOULOUGNE MADEMBA - MBOULOUGNE DIAWANDOU",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 63201050008,
+    "REGION": "KAOLACK",
+    "code_departement": 63,
+    "DEPARTEMENT": "GUINGUINEO",
+    "communes": "FASS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 71.76053141,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESCALE",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 61203040013,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "GANDIAYE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 107.1354413,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMAGUENE I",
+    "Equipe_39_equipes": "EQ23"
+  },
+  {
+    "Identifiant_du_DR": 61101000129,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 100.417218,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA KAOLACK",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000084,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 148.5764961,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KASNACK",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000169,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 122.9598588,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SAM",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000212,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 139.3545066,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDAR GOU NDAW",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000044,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 133.2065137,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGADÉ",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000258,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 107.5898765,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA BAYE",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61101000010,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KAOLACK",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 161.8971474,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SING SING",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61201020023,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "NDIAFFATE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 90.8712594,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOUTAL OUOLOF (KOUTAL ABDOU)",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 61201020035,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "NDIAFFATE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 75.7260495,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIOFFIOR",
+    "Equipe_39_equipes": "EQ24"
+  },
+  {
+    "Identifiant_du_DR": 62201020008,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "MEDINA SABAKH",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 44.42594904,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PAKANE KEUR GAGNY",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62201010012,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "KAYEMOR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SONKORONG",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62201030015,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "NGAYENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 126.2100825,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIECKENE",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62101000016,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "NIORO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 113.1997115,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU SALAM",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62202040013,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "TAIBA NIASSENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 83.80349478,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TAIBA NIASSENE",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62202060002,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "DAROU SALAM",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 67.64860422,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA OMAR TOURE (SANTHIE SAMA)",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 62203050014,
+    "REGION": "KAOLACK",
+    "code_departement": 62,
+    "DEPARTEMENT": "NIORO",
+    "communes": "KEUR MADIABEL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 147.5639097,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINE NIASSENE",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 61201010018,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "KEUR SOCE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 63.60988158,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEUR MAMOUR - LAMARAME KAMBY   - NDIOBENE MATH",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 61202020002,
+    "REGION": "KAOLACK",
+    "code_departement": 61,
+    "DEPARTEMENT": "KAOLACK",
+    "communes": "THIARE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 64.61956224,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIANGA EL HADJI MOMATH",
+    "Equipe_39_equipes": "EQ25"
+  },
+  {
+    "Identifiant_du_DR": 121101000044,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KAFFRINE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 108.6145419,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PEYE",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 121101000030,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KAFFRINE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 111.6885384,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESCALE EST",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 121101000018,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KAFFRINE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 112.7132039,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMAGUENE TP",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 121101000004,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KAFFRINE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 143.4531686,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMAGUENE NDIOBENE",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 121201010016,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "BOULEL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 89.86157874,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOULEL GOUMACK",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 122202020037,
+    "REGION": "KAFFRINE",
+    "code_departement": 122,
+    "DEPARTEMENT": "BIRKELANE",
+    "communes": "NDIOGNICK",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 61.59052026,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGOUYE",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 122202010020,
+    "REGION": "KAFFRINE",
+    "code_departement": 122,
+    "DEPARTEMENT": "BIRKELANE",
+    "communes": "MABO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 92.89062072,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KASSAS - H1 KASSAS TOUCOULEUR",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 121201030013,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KAHI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 84.81317544,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KAHI",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 122101000002,
+    "REGION": "KAFFRINE",
+    "code_departement": 122,
+    "DEPARTEMENT": "BIRKELANE",
+    "communes": "BIRKELANE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 113.1997115,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TALLY BA",
+    "Equipe_39_equipes": "EQ26"
+  },
+  {
+    "Identifiant_du_DR": 124101000005,
+    "REGION": "KAFFRINE",
+    "code_departement": 124,
+    "DEPARTEMENT": "MALEM HODDAR",
+    "communes": "MALEM HODDAR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 89.95334219,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TAWA KEUR EL HADJI",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 121202010010,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "DIOKOUL MBELBOUCK",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 81.78413346,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOLY MBELBOUCK-",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 121202050010,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "NGANDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 62.66412602,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KELIMANE",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 121202020037,
+    "REGION": "KAFFRINE",
+    "code_departement": 121,
+    "DEPARTEMENT": "KAFFRINE",
+    "communes": "KATHIOTE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 80.7744528,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIE GAL NGONE",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 124202010005,
+    "REGION": "KAFFRINE",
+    "code_departement": 124,
+    "DEPARTEMENT": "MALEM HODDAR",
+    "communes": "DIANKE SOUF",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 91.88094006,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDIOTE NDIOLOFENE, NDIOTE BIRAM, NDIOTE MOR COUMBA",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 124202020003,
+    "REGION": "KAFFRINE",
+    "code_departement": 124,
+    "DEPARTEMENT": "MALEM HODDAR",
+    "communes": "SAGNA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 60.5808396,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA NIAHEME",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 123202010042,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "LOUR ESCALE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 75.7260495,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA GOUNASS-H1 DIAM DIAM DIMAREL-SARE ABDOUL -TOUBA TAWFEKH-  H1 KEUR CHEIKH SAGNE",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 123201010035,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "SALY ESCALE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 58.56147828,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOUMBIDIA PEULH-SARE BIRAM BAMBEY - H1 DABEL SALY",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 123202020004,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "RIBOT ESCALE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PETEL NDIODORY - THIAKHATE MOURIDE",
+    "Equipe_39_equipes": "EQ27"
+  },
+  {
+    "Identifiant_du_DR": 54101000013,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 54,
+    "DEPARTEMENT": "KOUMPENTOUM",
+    "communes": "KOUMPENTOUM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 133.4139457,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESCALE 1",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 54201020013,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 54,
+    "DEPARTEMENT": "KOUMPENTOUM",
+    "communes": "KAHENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 54.52275564,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 DIALATODJI -  H1 SINTHIOU SOUMAYLA DIALLO - H2 TAIF NIANI - NGOUNTA BAMBA",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 52202010026,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "MAKACOULIBANTANG",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 57.55179762,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIOU SAMBA CIRA",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 54202030015,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 54,
+    "DEPARTEMENT": "KOUMPENTOUM",
+    "communes": "PASS KOTO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 67.64860422,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMWELI",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 54202020026,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 54,
+    "DEPARTEMENT": "KOUMPENTOUM",
+    "communes": "KOUTHIABA OUOLOF",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 123201030025,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "IDA MOURIDE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 48.46467168,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMAGUENE NDAME",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 123101000023,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "KOUNGHEUL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 137.4567926,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOUNGHEUL SANTHIE",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 123101000010,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "KOUNGHEUL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 129.3710989,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMAGUENE 1",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 123201020027,
+    "REGION": "KAFFRINE",
+    "code_departement": 123,
+    "DEPARTEMENT": "KOUNGHEUL",
+    "communes": "FASS THIEKENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 87.84221742,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOUNGHEUL SOCE",
+    "Equipe_39_equipes": "EQ28"
+  },
+  {
+    "Identifiant_du_DR": 51201030024,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 51,
+    "DEPARTEMENT": "BAKEL",
+    "communes": "SADATOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 121.1616792,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIYABOUGOU",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 53201020012,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 53,
+    "DEPARTEMENT": "GOUDIRY",
+    "communes": "GOUMBAYEL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 67.64860422,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SIMBANE MAMADOU",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 53204030004,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 53,
+    "DEPARTEMENT": "GOUDIRY",
+    "communes": "KOTHIARY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 58.62127918,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ABATTOIRS",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52201020029,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "SINTHIOU MALEME",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 69.66796554,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIOU MALEME",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000097,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 143.4531686,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PONT I",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000138,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 121.9351933,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PLATEAU",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000041,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 170.0944713,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CAMP NAVETANE",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000023,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 147.5518306,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE GUILEL",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000061,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 147.5518306,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOUREL DIADIE",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 52101000005,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 99.39255253,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOUREL AMATH",
+    "Equipe_39_equipes": "EQ29"
+  },
+  {
+    "Identifiant_du_DR": 14301120039,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "SAM NOTAIRE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 115.2805976,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBODE II",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301120076,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "SAM NOTAIRE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 224.4401016,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOLF NORD II",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301220035,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "NDIAREME LIMAMOULAYE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 147.150439,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HAMO VI",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301230084,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "WAKHINANE NIMZATT",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 111.1998685,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA GUEDIAWAYE",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301230043,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "WAKHINANE NIMZATT",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 98.95768116,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "WAKHINANE",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301110126,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "GOLF SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 120.381509,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE IBRAHIMA DIOP",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301110087,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "GOLF SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 135.6842432,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CHAMPS DE COURSE B",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 14301210033,
+    "REGION": "DAKAR",
+    "code_departement": 14,
+    "DEPARTEMENT": "GUEDIAWAYE",
+    "communes": "MEDINA GOUNASS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 170.3704408,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA GOUNASS I A",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 15201010198,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "YEUMBEUL NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 109.159504,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMALAYE",
+    "Equipe_39_equipes": "EQ3"
+  },
+  {
+    "Identifiant_du_DR": 131101000048,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 116.8118659,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DINGUESSOU",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131101000005,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 97.34322155,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MOSQUEE",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131101000013,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 208.0070945,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOGORO",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131101000037,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 133.2065137,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DINGUESSOU",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131101000041,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 88.12123214,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DINGUESSOU",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131201020010,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "TOMBORONKOTO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 70.6776462,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MAKO",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 52203010023,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "DIALACOTO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 48.46467168,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 BANDIAGARA-TENGHOTO-H1 BARKATOU THIERNO CAMARA-H2 DIAOCOUNDA-BANTANCOLY",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 52101000078,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 110.6638729,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "QUINZAMBOUGOU",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 52101000117,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "TAMBACOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 108.6145419,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ABATTOIRS COMPLEMENT",
+    "Equipe_39_equipes": "EQ30"
+  },
+  {
+    "Identifiant_du_DR": 131101000019,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 115.7872004,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DANDEMAYO",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 131101000060,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 160.8724819,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEGNETO PEULH",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 131101000055,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 146.5271651,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GADA DINGUESSOU",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133202020017,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "MISSIRAH SIRIMANA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 198.90709,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOKHODI",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133201010009,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "MEDINA BAFFE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 90.8712594,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 FADIANDIAN - H1 SONKHOYA - H7 NIENIEYA - NOUMOUFOUKHA",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133201020032,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "BEMBOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 123.1810405,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BANTANKHO",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133201020015,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "BEMBOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BALORY - SAMEKHOTO - SANELA",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133202030007,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "SABODALA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 120.1519985,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TENKOTO-H2 THIANGUEL BASSADJI",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 133202010009,
+    "REGION": "KEDOUGOU",
+    "code_departement": 133,
+    "DEPARTEMENT": "SARAYA",
+    "communes": "KHOSSANTO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 59.57115894,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KHOSSANTO",
+    "Equipe_39_equipes": "EQ31"
+  },
+  {
+    "Identifiant_du_DR": 131202020006,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "FONGOLEMBI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 133.2778471,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 NIANGUI BOLY - SODIORE - WASSAYA -NIANGALANKOME - H1 HORE FELO FODEYABE",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 131202010011,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "DIMBOLI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 202.9458127,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KAFORY",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 131101000032,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 178.2917953,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOMBA",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 131101000025,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "KEDOUGOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 154.724489,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOMBA",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 131201010010,
+    "REGION": "KEDOUGOU",
+    "code_departement": 131,
+    "DEPARTEMENT": "KEDOUGOU",
+    "communes": "BANDAFASSI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 63.60988158,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NIANGHE - H3 GUINGARA - H5 SILING - SYLLACOUNDA PEULH",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 132201010001,
+    "REGION": "KEDOUGOU",
+    "code_departement": 132,
+    "DEPARTEMENT": "SALEMATA",
+    "communes": "DAKATELY",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 55.5324363,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOUGOL - H1 SINTHIROU",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 132202010003,
+    "REGION": "KEDOUGOU",
+    "code_departement": 132,
+    "DEPARTEMENT": "SALEMATA",
+    "communes": "DAR SALAM",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 79.76477214,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAR SALAM, H2 DIARA DOUCOURE, H2 DIARA NANGAR, H3 DIARA GANDJIRI, LINGUEKOTO",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 132101000007,
+    "REGION": "KEDOUGOU",
+    "code_departement": 132,
+    "DEPARTEMENT": "SALEMATA",
+    "communes": "SALEMATA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 174.8531258,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIOU ROUDJI-EGATH-GAYGUI",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 132202030003,
+    "REGION": "KEDOUGOU",
+    "code_departement": 132,
+    "DEPARTEMENT": "SALEMATA",
+    "communes": "OUBADJI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 120.1519985,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "OUNDOUFERE-H1 GUEURBAGUINE-GRIGNINDINE-GRIDIAMBANE-ETHINANGOR (BOUDJINE)",
+    "Equipe_39_equipes": "EQ32"
+  },
+  {
+    "Identifiant_du_DR": 102203020020,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "SARE COLY SALLE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MAMBOYA KEKOUTA-KANSATANG-H1 SARE BOCAR-H2 SINTHIANG MAMADOU",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102203010017,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "KANDIA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 56.54211696,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE COLY TENING-SINTHIANG BADIONG-KAMINACOR DJIDERE-H1 SINTHIANG MOLO-SARE DICORY (LAMBIDOU DIKORY)",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102101000029,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "VELINGARA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 134.4246574,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIANG AIDARA",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102101000004,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "VELINGARA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 103.0925944,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIANKAN II",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102201030091,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "MEDINA GOUNASS",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 80.7744528,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MOUNDOUNG SANKOULE-BOUSTANE-TAIBATOU",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102201030001,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "MEDINA GOUNASS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 46.44531036,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA GOUNASS",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 102201030046,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "MEDINA GOUNASS",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 61.59052026,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA GOUNASS",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 52203030011,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "NETTEBOULOU",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 38.36786508,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SOUROUYEL",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 52203020043,
+    "REGION": "TAMBACOUNDA",
+    "code_departement": 52,
+    "DEPARTEMENT": "TAMBACOUNDA",
+    "communes": "MISSIRAH",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 83.80349478,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NIAOULE TANOU",
+    "Equipe_39_equipes": "EQ33"
+  },
+  {
+    "Identifiant_du_DR": 101202050012,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "MEDINA CHERIF",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 134.2875278,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ANAMBE",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 103202030036,
+    "REGION": "KOLDA",
+    "code_departement": 103,
+    "DEPARTEMENT": "MEDINA YORO FOULAH",
+    "communes": "BOUROUCO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 51.49371366,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H3 DIMISKA DEMBA-H4 DJIDA LEMOU (DJIDA LAMINE BA)-H1NEMA TOUCOULEUR (NEMA SAMBA SALL)",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 102202030006,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "PAKOUR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 80.7744528,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LINKETO SAMBA",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 101202010011,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "BAGADADJI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 70.6776462,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA FODE-MEDINA GUIRO YORO-SARE SAMBA LOBE",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 103203020032,
+    "REGION": "KOLDA",
+    "code_departement": 103,
+    "DEPARTEMENT": "MEDINA YORO FOULAH",
+    "communes": "KEREWANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 81.78413346,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE DEMBA - SARE MAMADOU ANDA - SARE SAMETA - PASSY NDARY",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 103101000002,
+    "REGION": "KOLDA",
+    "code_departement": 103,
+    "DEPARTEMENT": "MEDINA YORO FOULAH",
+    "communes": "MEDINA YORO FOULAH",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 120.2746935,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOUNDOU MBALLO-SINTHIANG KOUNA-SARE DEMBA DIEWO-NEMATABA",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 103203030018,
+    "REGION": "KOLDA",
+    "code_departement": 103,
+    "DEPARTEMENT": "MEDINA YORO FOULAH",
+    "communes": "NIAMING",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KOULOR - SINTHIANG SAMBA TENING - H 1 DARSALAM",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 102203050040,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "DIAOBE KABENDOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 80.8569368,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA SAMBA KANDE",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 102203050006,
+    "REGION": "KOLDA",
+    "code_departement": 102,
+    "DEPARTEMENT": "VELINGARA",
+    "communes": "DIAOBE KABENDOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 87.93191877,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIALICOUNDA",
+    "Equipe_39_equipes": "EQ34"
+  },
+  {
+    "Identifiant_du_DR": 141201070003,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "DIANAH MALARY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 109.1568647,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTASSOU",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 141201030002,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "DIANNAH BA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 42.40658772,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE TOUMANI MANJACQUE - SARE TOUMANI PEULH-DIEMECOUNDA-H1 SINTHIANG ALADJI-KOUDJINI",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101201030011,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "TANKANTO ESCALE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 61.59052026,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE DIALLO - KONTECOUNDA - KESSEL COUNDA - FANKA BANTANG - SINTHIANG YOBA KANDE - SINTHIANG MALICK",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101101000099,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "KOLDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 120.9105278,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SIKILO CENTRE OUEST",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101101000071,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "KOLDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 122.9598588,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BANTAGUEL",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101101000015,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "KOLDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 133.2065137,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SIKILO NORD",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101101000044,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "KOLDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 110.6638729,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BEL AIR",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101201010024,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "DIOULACOLON",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 117.1229566,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SINTHIANG SAMBA COULIBALY",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 101201010011,
+    "REGION": "KOLDA",
+    "code_departement": 101,
+    "DEPARTEMENT": "KOLDA",
+    "communes": "DIOULACOLON",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 55.5324363,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU SALAM THIERNO-MANATO SAKOU (SINTHIANG KIMBA)",
+    "Equipe_39_equipes": "EQ35"
+  },
+  {
+    "Identifiant_du_DR": 142203030004,
+    "REGION": "SEDHIOU",
+    "code_departement": 142,
+    "DEPARTEMENT": "BOUNKILING",
+    "communes": "FAOUNE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 70.6776462,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SARE LAMINE BA - MEDINA DIAMAL",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 142203040005,
+    "REGION": "SEDHIOU",
+    "code_departement": 142,
+    "DEPARTEMENT": "BOUNKILING",
+    "communes": "MADINA WANDIFA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 85.91049535,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 142201050002,
+    "REGION": "SEDHIOU",
+    "code_departement": 142,
+    "DEPARTEMENT": "BOUNKILING",
+    "communes": "NDIAMACOUTA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 66.70697286,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NDIAMACOUTA",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 141203020023,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "DJIREDJI",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 51.49371366,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA MANDINGUE",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 141101000004,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "SEDHIOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 96.01761245,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MORICOUNDA",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 141101000028,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "SEDHIOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 144.5317745,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTASSOU II",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 141101000017,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "SEDHIOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 115.2211349,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOUDIABYA",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 141202020004,
+    "REGION": "SEDHIOU",
+    "code_departement": 141,
+    "DEPARTEMENT": "SEDHIOU",
+    "communes": "SANSAMBA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 57.55179762,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOGNERE",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 142201040018,
+    "REGION": "SEDHIOU",
+    "code_departement": 142,
+    "DEPARTEMENT": "BOUNKILING",
+    "communes": "NDIAMALATHIEL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 77.74541082,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KANDEMBA - SARE BOUBA - TEMENTO - SARE SEYNI DIALLO",
+    "Equipe_39_equipes": "EQ36"
+  },
+  {
+    "Identifiant_du_DR": 142202020003,
+    "REGION": "SEDHIOU",
+    "code_departement": 142,
+    "DEPARTEMENT": "BOUNKILING",
+    "communes": "DIACOUNDA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 47.45499102,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ALLOUTE MANDINGUE",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21101000013,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "BIGNONA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 175.8638375,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KADIAMOR",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21202020002,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "DIEGOUNE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 123.7360627,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIEGOUNE - H1 BARAFAYE",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21204010022,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "DJINAKY",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 119.3347557,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DJINAKY",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21201020022,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "OULAMPANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 115.1035952,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIANGO-BOUTO",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21203040017,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "TENGHORY",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 117.1229566,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TENGHORY COMPLIQUE",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21203040003,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "TENGHORY",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 61.59052026,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 DJIKESSE",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21204030005,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "KATABA 1",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 146.4036957,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KATACK - KOUNKOUDIANG",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 21204020016,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "KAFOUNTINE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 162.5585863,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KAFOUNTINE",
+    "Equipe_39_equipes": "EQ37"
+  },
+  {
+    "Identifiant_du_DR": 23202010003,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ENAMPORE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 197.9467957,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ESSYL - KAMOBEUL",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 23101000108,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 126.0338553,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOUCOTTE NORD",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 23101000154,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 119.8858623,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KENIA",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 23101000016,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 102.466549,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SOUCOUPAPAYE",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 23101000062,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 135.2558447,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIABIR",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 21202040005,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 21,
+    "DEPARTEMENT": "BIGNONA",
+    "communes": "MANGAGOULACK",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 166.0021664,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TENDOUCK",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 22202020002,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 22,
+    "DEPARTEMENT": "OUSSOUYE",
+    "communes": "OUKOUT",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 236.7220319,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BOUKITINGO - DIANTENE - H1 NIALOBODJIE",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 22201010004,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 22,
+    "DEPARTEMENT": "OUSSOUYE",
+    "communes": "DJEMBERING",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 201.936132,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CABROUSSE KADIAKAYE",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 22201010012,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 22,
+    "DEPARTEMENT": "OUSSOUYE",
+    "communes": "DJEMBERING",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 145.394015,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CAP SKIRING",
+    "Equipe_39_equipes": "EQ38"
+  },
+  {
+    "Identifiant_du_DR": 23201010001,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ADEANE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 133.2778471,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H3 KHAR YALLA -AGNACK GRAND",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143201050008,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "YARANG BALANTE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 53.51307498,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BILASSAR BALANTE - BILASSAR MANCAGNE - BOUCAMBRA MANCAGNE",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143101000018,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "GOUDOMP",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 87.93191877,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIOLACOUNDA II",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143101000002,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "GOUDOMP",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 80.8569368,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HAMDALAYE",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143203010004,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "NIAGHA",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 74.71636884,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KITIM",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143203020020,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "SIMBANDI BRASSOU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 88.85189808,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SIMBANDI BRASSOU MANJAQUE",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 143201010001,
+    "REGION": "SEDHIOU",
+    "code_departement": 143,
+    "DEPARTEMENT": "GOUDOMP",
+    "communes": "DJIBANAR",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 95.9196627,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ADOUNDOU BRAME - BAFATA BRAME - BAFATA I (BALANTE) - BAFATA II - H1 ADEANADING - H2 SALAMOULHIYA - MISSIRAH BAFATA - SIKOUN BRAME - SIKOUN MANCAGNE - SIKOUN MANDINGUE",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 23101000196,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 129.1078517,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BELFORT",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 23101000238,
+    "REGION": "ZIGUINCHOR",
+    "code_departement": 23,
+    "DEPARTEMENT": "ZIGUINCHOR",
+    "communes": "ZIGUINCHOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 117.8365314,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DJIBOCK",
+    "Equipe_39_equipes": "EQ39"
+  },
+  {
+    "Identifiant_du_DR": 15203020024,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "KEUR MASSAR SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 184.6529927,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE MUNICIPALE",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15203020088,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "KEUR MASSAR SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 93.85676976,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "BAYE GANA AW",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15201020042,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "YEUMBEUL SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 98.88375882,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SEYDOU NOUROU II",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15202020038,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "MALIKA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 134.664061,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMALAYE MALIKA",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15201010048,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "YEUMBEUL NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 125.4824204,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU SALAM VI DIAMALAYE",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15201010122,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "YEUMBEUL NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 110.1796862,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KHAIRA",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15202010209,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "KEUR MASSAR NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 125.4824204,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAARAY KAMIL",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15202010137,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "KEUR MASSAR NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 113.2402331,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINATOUL SALAM I",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 15202010060,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "KEUR MASSAR NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 131.6035141,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "ALHAMDOULILAHI",
+    "Equipe_39_equipes": "EQ4"
+  },
+  {
+    "Identifiant_du_DR": 12301220021,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "PIKINE EST",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 249.1489515,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CHAMPS DE COURSE II",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301230055,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "PIKINE NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 174.4511699,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU KHOUDOSS",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301340004,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "THIAROYE GARE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 110.8884567,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "FASS I",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301270030,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "GUINAW RAIL SUD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 100.9980457,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE EL HADJI MALICK SY",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301250024,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "DJIDAH THIAROYE KAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 82.63476468,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA PIKINE",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301250121,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "DJIDAH THIAROYE KAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 83.65494696,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA THIAROYE",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301310057,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "THIAROYE SUR MER",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 167.3098939,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301330034,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "DIAMAGUENE SICAP MBAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 93.85676976,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIACKSAO GOUYE SAPOUT",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 12301240008,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "DALIFORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 166.2897116,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DALIFORD S/Q 1 MARCHÉ",
+    "Equipe_39_equipes": "EQ5"
+  },
+  {
+    "Identifiant_du_DR": 13201010022,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "DIAMNIADIO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 103.0384103,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DIAMNIADIO SUD I",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 13301120044,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "RUFISQUE EST",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 106.0989571,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "THIAWLENE POUYENE",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 13301130043,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "RUFISQUE OUEST",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 94.87695204,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE SOCABEG",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 13101000016,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "nan",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 118.3411445,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KIP FINKONE",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 13301110029,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "RUFISQUE NORD (CENTRE)",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 125.4824204,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU RAKHMANE NORD OUEST",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 13301110102,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "RUFISQUE NORD (CENTRE)",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 121.4016913,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GUENDEL II",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 12301350056,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "MBAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 163.2291648,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DABAKH MALICK",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 12301350124,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "MBAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 133.6438787,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE ENVIRONNEMENT",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 12301330127,
+    "REGION": "DAKAR",
+    "code_departement": 12,
+    "DEPARTEMENT": "PIKINE",
+    "communes": "DIAMAGUENE SICAP MBAO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 137.7246078,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE NELSON MANDELA",
+    "Equipe_39_equipes": "EQ6"
+  },
+  {
+    "Identifiant_du_DR": 72102000016,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "POUT",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 143.5210628,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TOUBA POUT",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13202010008,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "BAMBYLOR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 111.0648726,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "GOROM I",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13202020086,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "SANGALKAM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 121.4016913,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13202020009,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "SANGALKAM",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 92.83658748,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13201020028,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "SEBIKOTANE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 142.8255192,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "KEURI KAW",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 15203010073,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "JAXAAY PARCELLES",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 79.57421784,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PARCELLES ASSAINIES UNITE 20",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 15203010002,
+    "REGION": "DAKAR",
+    "code_departement": 15,
+    "DEPARTEMENT": "KEUR MASSAR",
+    "communes": "JAXAAY PARCELLES",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 104.0585926,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PARCELLES ASSAINIES UNITE 27",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13202030065,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "TIVAOUANE PEULH NIAGHA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 85.8228561,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "TIVAOUANE PEULH QUARTIER DADAL KA",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 13202030158,
+    "REGION": "DAKAR",
+    "code_departement": 13,
+    "DEPARTEMENT": "RUFISQUE",
+    "communes": "TIVAOUANE PEULH NIAGHA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 76.73573016,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "HLM 1",
+    "Equipe_39_equipes": "EQ7"
+  },
+  {
+    "Identifiant_du_DR": 71101000014,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "JOAL FADIOUTH",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 138.3298412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SANTHIE",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71201020044,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "NDIAGANIAO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 48.46467168,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H5 NDENDERE-H6 KAKENE-H7 NGOUDEME",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71202030001,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "SESSENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 76.73573016,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H1 KEUR SIGA, KEUR YERIM, H2 KEUR DETHIE (NDIOUGNE NDIAREME)",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71201010039,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "FISSEL",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 56.54211696,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "H3 NGANEME-MBALCAM",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71102000075,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "MBOUR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 117.8365314,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "DAROU SALAM",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71102000192,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "MBOUR",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 120.9105278,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINE EXTENSION",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71203070037,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "SALY PORTUDAL",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 116.2318467,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SALY CARREFOUR",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71203010087,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "MALICOUNDA",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 103.997108,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "SALY DOUTE",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 71203050018,
+    "REGION": "THIES",
+    "code_departement": 71,
+    "DEPARTEMENT": "MBOUR",
+    "communes": "NGAPAROU",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 139.478216,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "NGANE",
+    "Equipe_39_equipes": "EQ8"
+  },
+  {
+    "Identifiant_du_DR": 72301220007,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "THIES OUEST",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 174.1931333,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "CITE MALICK SY",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 72301110036,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "THIES NORD",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 107.5898765,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MEDINA FALL",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 72203020001,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "FANDENE",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 216.0716612,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "LALANE-H1 KEUR NDIOUKOUNE",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 72203020015,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "FANDENE",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 198.90709,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "PEYCOUCK SERERE",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 72301210095,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "THIES EST",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 84.02257018,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "FAHU II",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 72201010032,
+    "REGION": "THIES",
+    "code_departement": 72,
+    "DEPARTEMENT": "THIES",
+    "communes": "NOTTO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 82.79381412,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 73201040003,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "MBORO",
+    "MILIEU_1": "URBAIN",
+    "Nombre_de_menages_RGPH5": 93.99618903,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "MBORO III",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 73204010008,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "CHERIF LO",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 73.70668818,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ9"
+  },
+  {
+    "Identifiant_du_DR": 73201030106,
+    "REGION": "THIES",
+    "code_departement": 73,
+    "DEPARTEMENT": "TIVAOUANE",
+    "communes": "DAROU KHOUDOSS",
+    "MILIEU_1": "RURAL",
+    "Nombre_de_menages_RGPH5": 84.81317544,
+    "ENQUETE": "EHCVM",
+    "vage": 1,
+    "COMOSITION_DR": "0",
+    "Equipe_39_equipes": "EQ9"
+  }
+];
+
+        // Variables globales pour les filtres
+        let currentFilters = {
+            team: '',
+            name: ''
+        };
+
+        // Initialisation de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTeamSelect();
+            updateStats();
+            displayTeams();
+            displayCommunes();
+            setupEventListeners();
+        });
+
+        // Initialiser le select des équipes
+        function initializeTeamSelect() {
+            const teamSelect = document.getElementById('teamSelect');
+            const teams = [...new Set(equipesData.map(member => member.Equipe))].sort();
+            
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamSelect.appendChild(option);
+            });
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            const totalTeams = [...new Set(equipesData.map(member => member.Equipe))].length;
+            const totalMembers = equipesData.length;
+            const totalCommunes = [...new Set(communesData.map(commune => commune.communes))].length;
+
+            document.getElementById('totalTeams').textContent = totalTeams;
+            document.getElementById('totalMembers').textContent = totalMembers;
+            document.getElementById('totalCommunes').textContent = totalCommunes;
+        }
+
+        // Configurer les event listeners
+        function setupEventListeners() {
+            document.getElementById('teamSelect').addEventListener('change', applyFilters);
+            document.getElementById('nameSearch').addEventListener('input', applyFilters);
+        }
+
+        // Appliquer les filtres
+        function applyFilters() {
+            currentFilters.team = document.getElementById('teamSelect').value;
+            currentFilters.name = document.getElementById('nameSearch').value.toLowerCase();
+            
+            displayTeams();
+            displayCommunes();
+        }
+
+        // Effacer les filtres
+        function clearFilters() {
+            document.getElementById('teamSelect').value = '';
+            document.getElementById('nameSearch').value = '';
+            currentFilters = { team: '', name: '' };
+            
+            displayTeams();
+            displayCommunes();
+        }
+
+        // Filtrer les données des équipes
+        function filterTeamData() {
+            return equipesData.filter(member => {
+                const teamMatch = !currentFilters.team || member.Equipe === currentFilters.team;
+                const nameMatch = !currentFilters.name || member.p_n.toLowerCase().includes(currentFilters.name);
+                return teamMatch && nameMatch;
+            });
+        }
+
+        // Filtrer les données des communes
+        function filterCommuneData() {
+            return communesData.filter(commune => {
+                return !currentFilters.team || commune.Equipe_39_equipes === currentFilters.team;
+            });
+        }
+
+        // Afficher les équipes
+        function displayTeams() {
+            const teamsContent = document.getElementById('teamsContent');
+            const filteredData = filterTeamData();
+            
+            if (filteredData.length === 0) {
+                teamsContent.innerHTML = '<div class="no-results">Aucune équipe trouvée</div>';
+                return;
+            }
+
+            // Grouper par équipe
+            const teamGroups = {};
+            filteredData.forEach(member => {
+                if (!teamGroups[member.Equipe]) {
+                    teamGroups[member.Equipe] = [];
+                }
+                teamGroups[member.Equipe].push(member);
+            });
+
+            let html = '';
+            Object.keys(teamGroups).sort().forEach(teamName => {
+                const members = teamGroups[teamName];
+                const chef = members.find(m => m.Statut === "Chef d'équipe");
+                const agents = members.filter(m => m.Statut === "Agent");
+
+                html += `
+                    <div class="team-card">
+                        <div class="team-header">
+                            ${teamName} - ${members[0]['Région d\'affection']}
+                            (${members.length} membre${members.length > 1 ? 's' : ''})
+                        </div>
+                        <div class="team-members">
+                `;
+
+                // Afficher le chef d'équipe en premier
+                if (chef) {
+                    html += createMemberHTML(chef);
+                }
+
+                // Afficher les agents
+                agents.forEach(agent => {
+                    html += createMemberHTML(agent);
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            teamsContent.innerHTML = html;
+        }
+
+        // Créer le HTML pour un membre
+        function createMemberHTML(member) {
+            const statusClass = member.Statut === "Chef d'équipe" ? 'status-chef' : 'status-agent';
+            return `
+                <div class="member">
+                    <div class="member-info">
+                        <div class="member-name">${member.p_n}</div>
+                        <div class="member-tel">📞 ${member.Tel}</div>
+                    </div>
+                    <div class="member-status ${statusClass}">${member.Statut}</div>
+                </div>
+            `;
+        }
+
+        // Afficher les communes
+        function displayCommunes() {
+            const communesContent = document.getElementById('communesContent');
+            const filteredData = filterCommuneData();
+            
+            if (filteredData.length === 0) {
+                communesContent.innerHTML = '<div class="no-results">Aucune commune trouvée</div>';
+                return;
+            }
+
+            // Grouper par équipe
+            const communeGroups = {};
+            filteredData.forEach(commune => {
+                if (!communeGroups[commune.Equipe_39_equipes]) {
+                    communeGroups[commune.Equipe_39_equipes] = [];
+                }
+                communeGroups[commune.Equipe_39_equipes].push(commune);
+            });
+
+            let html = '';
+            Object.keys(communeGroups).sort().forEach(teamName => {
+                const communes = communeGroups[teamName];
+
+                html += `
+                    <div class="commune-card">
+                        <div class="commune-header">
+                            ${teamName} - ${communes.length} commune${communes.length > 1 ? 's' : ''}
+                        </div>
+                        <div class="commune-info">
+                `;
+
+                communes.forEach(commune => {
+                    html += `
+                        <div class="commune-detail">
+                            <strong>${commune.communes}</strong> (${commune.MILIEU_1})
+                            <br><small>📍 ${commune.REGION} - ${commune.DEPARTEMENT}</small>
+                            <br><small>🏠 ${Math.round(commune.Nombre_de_menages_RGPH5)} ménages</small>
+                            ${commune.COMOSITION_DR && commune.COMOSITION_DR !== '0' ? 
+                                `<br><small>📋 ${commune.COMOSITION_DR}</small>` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            communesContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
