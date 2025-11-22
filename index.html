@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualisation des Équipes EHCVM3</title>
-    <!-- CSS Leaflet avec le bon hash d'intégrité -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin=""/>
@@ -245,7 +244,7 @@
             font-size: 0.8rem;
         }
 
-        /* Communes */
+        /* Communes et Codes DR (réutilisation du style) */
         .commune-group {
             margin-bottom: 30px;
         }
@@ -392,12 +391,11 @@
 
         <div class="tabs">
             <button class="tab-btn active" data-tab="tab-equipes">👥 Équipes</button>
-            <!-- <button class="tab-btn" data-tab="tab-communes">🏘️ Communes</button> -->
             <button class="tab-btn" data-tab="tab-menages">🏠 Liste des Ménages</button>
             <button class="tab-btn" data-tab="tab-carte">🗺️ Carte des Ménages</button>
+            <button class="tab-btn" data-tab="tab-coders">📋 Codes DR</button>
         </div>
 
-        <!-- Onglet 1: Équipes -->
         <div id="tab-equipes" class="content-section active">
             <div class="search-container">
                 <div class="search-group">
@@ -453,7 +451,6 @@
             </div>
         </div>
 
-        <!-- Onglet 2: Communes -->
         <div id="tab-communes" class="content-section">
             <div class="search-container">
                 <div class="search-group">
@@ -481,7 +478,6 @@
             </div>
         </div>
 
-        <!-- Onglet 3: Ménages -->
         <div id="tab-menages" class="content-section">
             <div class="search-container">
                 <div class="search-group">
@@ -491,8 +487,12 @@
                     </select>
                 </div>
                 <div class="search-group">
-                    <label for="menageNameSearch">Rechercher:</label>
+                    <label for="menageNameSearch">Rechercher par nom/lieu:</label>
                     <input type="text" id="menageNameSearch" placeholder="Nom, région, département ou village...">
+                </div>
+                <div class="search-group">
+                    <label for="menageCoderSearch">Filtrer par Code DR:</label>
+                    <input type="text" id="menageCoderSearch" placeholder="Code DR...">
                 </div>
                 <button class="clear-btn" onclick="clearMenageFilters()">Effacer les filtres</button>
             </div>
@@ -509,7 +509,6 @@
             </div>
         </div>
 
-        <!-- Onglet 4: Carte -->
         <div id="tab-carte" class="content-section">
             <div class="search-container">
                 <div class="search-group">
@@ -519,8 +518,12 @@
                     </select>
                 </div>
                 <div class="search-group">
-                    <label for="mapNameSearch">Rechercher:</label>
+                    <label for="mapNameSearch">Rechercher par nom/lieu:</label>
                     <input type="text" id="mapNameSearch" placeholder="Nom, région, département ou village...">
+                </div>
+                <div class="search-group">
+                    <label for="mapCoderSearch">Filtrer par Code DR:</label>
+                    <input type="text" id="mapCoderSearch" placeholder="Code DR...">
                 </div>
                 <button class="clear-btn" onclick="clearMapFilters()">Effacer les filtres</button>
             </div>
@@ -534,9 +537,35 @@
                 </div>
             </div>
         </div>
+
+        <div id="tab-coders" class="content-section">
+            <div class="search-container">
+                <div class="search-group">
+                    <label for="coderTeamSelect">Filtrer par équipe:</label>
+                    <select id="coderTeamSelect">
+                        <option value="">-- Toutes les équipes --</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label for="coderSearch">Rechercher par Code DR:</label>
+                    <input type="text" id="coderSearch" placeholder="Code DR...">
+                </div>
+                <button class="clear-btn" onclick="clearCoderFilters()">Effacer les filtres</button>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 id="codersListTitle">📋 Codes DR par Équipe (0)</h2>
+                </div>
+                <div class="section-content">
+                    <div id="codersContent" class="loading">
+                        Chargement des Codes DR...
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Script JavaScript de Leaflet -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
@@ -549,11 +578,12 @@
         let map;
         let markersLayer;
         
-        // Objets pour stocker les filtres
+        // Objets pour stocker les filtres (MIS À JOUR)
         let teamFilters = { search: '', region: '' };
         let communeFilters = { team: '', search: '' };
-        let menageFilters = { team: '', search: '' };
-        let mapFilters = { team: '', search: '' };
+        let menageFilters = { team: '', search: '', coder: '' }; // AJOUT: coder
+        let mapFilters = { team: '', search: '', coder: '' }; // AJOUT: coder
+        let coderFilters = { team: '', search: '' }; // NOUVEAU
 
         // Initialisation au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
@@ -571,6 +601,7 @@
             displayTeams();
             displayCommunes();
             displayMenages();
+            displayCoders(); // NOUVEAU
         });
 
         // Fonction pour charger des données d'exemple (remplacez par vos vraies données)
@@ -1828,11 +1859,10 @@
             ];
 
 
-        // Exemple de données communes
+            // Exemple de données communes
             communesData = [
-
-]
-
+                // (Peut rester vide ou ajouter des données si vous réactivez l'onglet)
+            ];
 
 
             // Exemple de données ménages
@@ -75549,7 +75579,8 @@
     }
 ];
 
-            // Peupler les selects d'équipes
+
+            // Peupler les selects d'équipes (MIS À JOUR pour inclure le nouveau select)
             populateTeamSelects();
             populateRegionSelect();
         }
@@ -75557,7 +75588,7 @@
         function populateTeamSelects() {
             const teams = [...new Set(equipeData.map(member => member.Equipe))];
             
-            ['communeTeamSelect', 'menageTeamSelect', 'mapTeamSelect'].forEach(selectId => {
+            ['communeTeamSelect', 'menageTeamSelect', 'mapTeamSelect', 'coderTeamSelect'].forEach(selectId => {
                 const select = document.getElementById(selectId);
                 select.innerHTML = '<option value="">-- Toutes les équipes --</option>';
                 teams.forEach(team => {
@@ -75609,13 +75640,19 @@
             document.getElementById('communeTeamSelect').addEventListener('change', applyCommuneFilters);
             document.getElementById('communeNameSearch').addEventListener('input', applyCommuneFilters);
 
-            // Ménages
+            // Ménages (MIS À JOUR)
             document.getElementById('menageTeamSelect').addEventListener('change', applyMenageFilters);
             document.getElementById('menageNameSearch').addEventListener('input', applyMenageFilters);
+            document.getElementById('menageCoderSearch').addEventListener('input', applyMenageFilters); // NOUVEAU
 
-            // Carte
+            // Carte (MIS À JOUR)
             document.getElementById('mapTeamSelect').addEventListener('change', updateMapFilters);
             document.getElementById('mapNameSearch').addEventListener('input', updateMapFilters);
+            document.getElementById('mapCoderSearch').addEventListener('input', updateMapFilters); // NOUVEAU
+            
+            // Codes DR (NOUVEAU)
+            document.getElementById('coderTeamSelect').addEventListener('change', applyCoderFilters);
+            document.getElementById('coderSearch').addEventListener('input', applyCoderFilters);
         }
 
         function updateStats() {
@@ -75801,10 +75838,11 @@
             communesContent.innerHTML = html;
         }
 
-        // --- LOGIQUE DE LA SECTION "LISTE DES MÉNAGES" ---
+        // --- LOGIQUE DE LA SECTION "LISTE DES MÉNAGES" (MIS À JOUR) ---
         function applyMenageFilters() {
             menageFilters.team = document.getElementById('menageTeamSelect').value;
             menageFilters.search = document.getElementById('menageNameSearch').value.toLowerCase();
+            menageFilters.coder = document.getElementById('menageCoderSearch').value.toLowerCase(); // NOUVEAU FILTRE
             
             displayMenages();
         }
@@ -75812,7 +75850,8 @@
         function clearMenageFilters() {
             document.getElementById('menageTeamSelect').value = '';
             document.getElementById('menageNameSearch').value = '';
-            menageFilters = { team: '', search: '' };
+            document.getElementById('menageCoderSearch').value = ''; // NOUVEAU EFFACEMENT
+            menageFilters = { team: '', search: '', coder: '' };
             
             displayMenages();
         }
@@ -75821,6 +75860,10 @@
             return menagesData.filter(menage => {
                 const teamMatch = !menageFilters.team || menage.Equipe === menageFilters.team;
                 
+                // Nouvelle condition pour le Code DR
+                const coderMatch = !menageFilters.coder || 
+                    (menage["Code DR"] && menage["Code DR"].toLowerCase().includes(menageFilters.coder));
+
                 const searchTerms = menageFilters.search.split(' ').filter(term => term.length > 0);
                 
                 const textMatch = searchTerms.every(term => 
@@ -75832,7 +75875,7 @@
                     (menage["Equipe"] && menage["Equipe"].toLowerCase().includes(term))
                 );
 
-                return teamMatch && textMatch;
+                return teamMatch && coderMatch && textMatch;
             });
         }
 
@@ -75870,7 +75913,7 @@
                             <strong>Équipe:</strong> <span>${menage.Equipe}</span>
                         </div>
                         <div class="menage-details">
-                            <strong>Code DR:</strong> ${menage["Code DR"]}
+                            <strong>Code DR:</strong> ${menage["Code DR"] || 'Non spécifié'}
                             <strong>Région/Département:</strong> ${menage.Region} / ${menage.Departement}
                             <br><strong>Commune:</strong> ${menage["Commune"]}
                             <br><strong>Adresse:</strong> ${menage["Adresse ménage"] || ' '}
@@ -75905,10 +75948,11 @@
             }, 300);
         }
 
-        // --- LOGIQUE DE LA SECTION "CARTE DES MÉNAGES" ---
+        // --- LOGIQUE DE LA SECTION "CARTE DES MÉNAGES" (MIS À JOUR) ---
         function updateMapFilters() {
             mapFilters.team = document.getElementById('mapTeamSelect').value;
             mapFilters.search = document.getElementById('mapNameSearch').value.toLowerCase();
+            mapFilters.coder = document.getElementById('mapCoderSearch').value.toLowerCase(); // NOUVEAU FILTRE
             
             if (map) {
                 updateMapMarkers();
@@ -75918,7 +75962,8 @@
         function clearMapFilters() {
             document.getElementById('mapTeamSelect').value = '';
             document.getElementById('mapNameSearch').value = '';
-            mapFilters = { team: '', search: '' };
+            document.getElementById('mapCoderSearch').value = ''; // NOUVEAU EFFACEMENT
+            mapFilters = { team: '', search: '', coder: '' };
             
             if (map) {
                 updateMapMarkers();
@@ -75961,6 +76006,10 @@
                 
                 const teamMatch = !mapFilters.team || menage.Equipe === mapFilters.team;
                 
+                // Nouvelle condition pour le Code DR
+                const coderMatch = !mapFilters.coder || 
+                    (menage["Code DR"] && menage["Code DR"].toLowerCase().includes(mapFilters.coder));
+                
                 const searchTerms = mapFilters.search.split(' ').filter(term => term.length > 0);
                 const textMatch = searchTerms.every(term => 
                     (menage["Nom et Prénom chef de ménage"] && menage["Nom et Prénom chef de ménage"].toLowerCase().includes(term)) ||
@@ -75970,7 +76019,7 @@
                     (menage["Commune"] && menage["Commune"].toLowerCase().includes(term))
                 );
                 
-                return teamMatch && textMatch;
+                return teamMatch && coderMatch && textMatch;
             });
             
             if (map) {
@@ -75983,6 +76032,7 @@
                     const popupContent = `
                         <strong>Ménage: ${menage["Nom et Prénom chef de ménage"]} (${menage.Titrage})</strong><br>
                         Équipe: ${menage.Equipe}<br>
+                        Code DR: ${menage["Code DR"] || 'Non spécifié'}<br>
                         Localisation: ${menage.Region} / ${menage["Commune"]}<br>
                         <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">🚗 Itinéraire Google Maps</a>
                     `;
@@ -75997,10 +76047,115 @@
                 // Centrer la carte pour inclure tous les marqueurs filtrés
                 if (bounds.length > 0) {
                     map.fitBounds(bounds, {padding: [20, 20], maxZoom: 12});
-                } else if (mapFilters.team || mapFilters.search) {
+                } else if (mapFilters.team || mapFilters.search || mapFilters.coder) {
                     // Si le filtre est actif mais qu'il n'y a pas de résultats, recentrer sur le Sénégal
                     map.setView([14.4974, -14.4524], 6); 
                 }
+            }
+        }
+        
+        // --- LOGIQUE DE LA SECTION "CODES DR" (NOUVEAU) ---
+        function applyCoderFilters() {
+            coderFilters.team = document.getElementById('coderTeamSelect').value;
+            coderFilters.search = document.getElementById('coderSearch').value.toLowerCase();
+            
+            displayCoders();
+        }
+
+        function clearCoderFilters() {
+            document.getElementById('coderTeamSelect').value = '';
+            document.getElementById('coderSearch').value = '';
+            coderFilters = { team: '', search: '' };
+            
+            displayCoders();
+        }
+
+        function displayCoders() {
+            const codersContent = document.getElementById('codersContent');
+            
+            // 1. Filtrer les ménages en fonction de l'équipe
+            let filteredMenages = menagesData.filter(menage => 
+                !coderFilters.team || menage.Equipe === coderFilters.team
+            );
+            
+            // 2. Identifier les Codes DR uniques et les regrouper par équipe
+            const codersByTeam = filteredMenages.reduce((groups, menage) => {
+                const teamName = menage.Equipe;
+                const codeDR = menage["Code DR"];
+                
+                if (codeDR) {
+                    if (!groups[teamName]) {
+                        groups[teamName] = {};
+                    }
+                    
+                    if (!groups[teamName][codeDR]) {
+                        groups[teamName][codeDR] = {
+                            count: 0,
+                            // Stocker une référence de localisation pour l'affichage (le premier ménage trouvé)
+                            details: `${menage.Region || ''} / ${menage.Departement || ''} / ${menage.Commune || ''}`
+                        };
+                    }
+                    
+                    groups[teamName][codeDR].count++;
+                }
+                return groups;
+            }, {});
+            
+            let html = '';
+            let totalCoders = 0;
+
+            Object.keys(codersByTeam).forEach(teamName => {
+                const teamCoders = codersByTeam[teamName];
+                let teamCoderCount = 0;
+                let teamTotalMenages = 0;
+                
+                // Appliquer le filtre de recherche Code DR
+                const filteredCoders = Object.keys(teamCoders).filter(codeDR => 
+                    !coderFilters.search || codeDR.toLowerCase().includes(coderFilters.search)
+                );
+                
+                if (filteredCoders.length === 0) {
+                    return; // Passer à l'équipe suivante si aucun Code DR ne correspond
+                }
+                
+                teamCoderCount = filteredCoders.length;
+                
+                // Calculer le nombre total de ménages filtrés pour cette équipe
+                teamTotalMenages = filteredCoders.reduce((sum, codeDR) => sum + teamCoders[codeDR].count, 0);
+
+                totalCoders += teamCoderCount;
+
+                html += `
+                    <div class="commune-group">
+                        <h3>${teamName} - ${teamCoderCount} Code${teamCoderCount > 1 ? 's' : ''} DR (${teamTotalMenages} ménages)</h3>
+                        <div class="commune-grid">
+                `;
+
+                filteredCoders.sort().forEach(codeDR => {
+                    const coderInfo = teamCoders[codeDR];
+                    html += `
+                        <div class="commune-card">
+                            <div class="commune-name">${codeDR}</div>
+                            <div class="commune-info">
+                                🏠 ${coderInfo.count} ménage${coderInfo.count > 1 ? 's' : ''}
+                                <br><small>Localisation: ${coderInfo.details}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('codersListTitle').textContent = `📋 Codes DR par Équipe (${totalCoders})`;
+
+            if (totalCoders === 0) {
+                codersContent.innerHTML = '<div class="no-results">Aucun Code DR trouvé correspondant aux filtres.</div>';
+            } else {
+                codersContent.innerHTML = html;
             }
         }
     </script>
